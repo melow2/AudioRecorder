@@ -249,6 +249,7 @@ open class ObservableAudioRecorder private constructor(private val filePath: Str
         }
 
         private fun findMinimalAudioRate(): Builder {
+            var flag = false
             val mSampleRates = intArrayOf(8000, 11025, 22050, 44100)
             for (rate in mSampleRates) {
                 for (audioFormat in shortArrayOf(AudioFormat.ENCODING_PCM_8BIT.toShort(), AudioFormat.ENCODING_PCM_16BIT.toShort())) {
@@ -266,6 +267,7 @@ open class ObservableAudioRecorder private constructor(private val filePath: Str
                                     bitsPerSecond = audioFormat.toInt()
                                     channels = channelConfig.toInt()
                                     recorder.stop()
+                                    flag = true
                                     return this
                                 }
                             }
@@ -276,7 +278,19 @@ open class ObservableAudioRecorder private constructor(private val filePath: Str
                     }
                 }
             }
+            if (!flag) getValidSampleRates()
             return this
+        }
+
+        fun getValidSampleRates() {
+            for (rate in intArrayOf(8000, 11025, 16000, 22050, 44100)) {  // add the rates you wish to check against
+                val bufferSize = AudioRecord.getMinBufferSize(rate, AudioFormat.CHANNEL_CONFIGURATION_DEFAULT, AudioFormat.ENCODING_PCM_16BIT)
+                if (bufferSize > 0) {
+                    sampleRate = rate
+                    bitsPerSecond = AudioFormat.ENCODING_PCM_16BIT.toShort().toInt()
+                    channels = AudioFormat.CHANNEL_IN_STEREO.toShort().toInt()
+                }
+            }
         }
 
         fun findBestAudioRate(): Builder {

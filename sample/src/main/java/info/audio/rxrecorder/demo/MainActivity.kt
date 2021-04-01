@@ -115,6 +115,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val FILE_NAME = "/sample.wav"
+        private const val FILE_NAME = "/sample.mp3"
     }
 }
